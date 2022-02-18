@@ -17,10 +17,11 @@ $var = $date.$uid;
 if (isset($_POST['submit'])) {
     if (checkout($_POST) > 0 & pembelian($_POST) > 0) {
         echo "<script>
-        alert('user baru berhasil ditambahkan');
+        alert('data baru berhasil ditambahkan');
         </script>";
     }else{
-        mysqli_error($koneksi);
+        echo "<script>alert('data gagal ditambahkan');
+        </script>";
     }
   }
 ?>
@@ -147,6 +148,7 @@ if (isset($_POST['submit'])) {
                                     </div>
                                     <div class="col-12 mb-3 saya">
                                         <select class="w-100" name="paket" id="">
+                                        <!-- halo -->
 
                                         </select>
                                     </div>
@@ -159,6 +161,7 @@ if (isset($_POST['submit'])) {
                                         <input type="hidden" name="nama_ekspedisi">
                                         <input type="hidden" name="nama_paket">
                                         <input type="hidden" name="ongkir">
+                                        <input type="hidden" name="">
                                         <input type="hidden" name="estimasi">
                                     </div>
 
