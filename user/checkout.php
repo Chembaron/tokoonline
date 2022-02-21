@@ -5,20 +5,26 @@ $uid = $_SESSION['uid'];
 if (!isset($_SESSION["login"])) {
     header("Location: login.php");
 }
-
+$date = date("dmY");
+$var = $date.$uid;
 $res = mysqli_query($koneksi, "SELECT SUM(harga * kuantitas) FROM user AS u 
 INNER JOIN cart AS c ON c.user_id=u.id 
 INNER JOIN barang AS b ON b.id=c.id_produk WHERE u.id='$uid'");
 $row = mysqli_fetch_row($res);
 $sum = $row[0];
-$date = date("dmy");
-$var = $date.$uid;
+// $resb = mysqli_query($connect, "SELECT SUM(berat * qty) FROM user AS u 
+// INNER JOIN cart AS c ON c.user_id=u.id 
+// INNER JOIN barang AS b ON b.id=c.id_produk WHERE u.id='$uid'");
+// $rowb = mysqli_fetch_row($resb);
+// $sumb = $rowb[0];
+
 
 if (isset($_POST['submit'])) {
     if (checkout($_POST) > 0 & pembelian($_POST) > 0) {
         echo "<script>
         alert('data baru berhasil ditambahkan');
         </script>";
+        header("Location: nota.php");
     }else{
         echo "<script>alert('data gagal ditambahkan');
         </script>";
@@ -103,7 +109,7 @@ if (isset($_POST['submit'])) {
 
                             <form action="" method="POST">
                                 <div class="row">
-                                    <input type="hidden" name="uid" value="<?= $var;?>">
+                                <input type="hidden" name="uit" value="<?= $var;?>">
                                     <div class="col-12 mb-3">
                                         <input type="text" class="form-control" name="username" id="username" placeholder="Username" value="">
                                     </div>
@@ -161,13 +167,19 @@ if (isset($_POST['submit'])) {
                                         <input type="hidden" name="nama_ekspedisi">
                                         <input type="hidden" name="nama_paket">
                                         <input type="hidden" name="ongkir">
-                                        <input type="hidden" name="">
+                                        <input type="hidden" name="uid" value="<?= $uid;?>">
+                                        <input type="hidden" name="idt" value="<?= $var;?>">
+                                        <input type="hidden" name="sum" value="<?= $sum;?>">
                                         <input type="hidden" name="estimasi">
                                     </div>
 
-                                    <div class="col-12 mb-3">
+                                    <!-- <div class="col-12 mb-3">
                                         <textarea name="comment" class="form-control w-100" id="comment" cols="30" rows="10" placeholder="Tinggalkan komentar tentang produk anda"></textarea>
+                                    </div> -->
+                                    <div class="col-12 mb-3">
+                                        <input type="date" class="form-control" name="tgl" id="tgl" placeholder="Tanggal Pembelian" value="">
                                     </div>
+                                    
                                 </div>
                                 <div class="cart-btn mt-100">
                                     <button type="sumbit" name="submit" class="btn amado-btn w-100">Submit</button>

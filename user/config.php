@@ -75,7 +75,7 @@ function regs($data){
 function checkout($data){
 	global $koneksi;
 	
-	$user_id = $data['uid'];
+	$user_id = $data['uit'];
 	$username = htmlspecialchars($data['username']);
 	$alamat = htmlspecialchars($data['alamat']);
 	$telp = htmlspecialchars($data['telp']);
@@ -83,7 +83,9 @@ function checkout($data){
 	$kota = htmlspecialchars($data['distrik']);
 	$ekspedisi = htmlspecialchars($data['ekspedisi']);
 	$ongkir = htmlspecialchars($data['ongkir']);
-	$query = "INSERT INTO ongkir VALUES ('', '$user_id', '$username', '$alamat', '$telp','$prov', '$kota', '$ekspedisi', '$ongkir')";
+	$etd = htmlspecialchars($data['estimasi']);
+	$date = htmlspecialchars($data['tgl']);
+	$query = "INSERT INTO ongkir VALUES ('', '$user_id', '$username', '$alamat', '$telp','$prov', '$kota', '$ekspedisi', '$ongkir', '$etd', '$date')";
 	mysqli_query($koneksi, $query);
 	return mysqli_affected_rows($koneksi);
 
@@ -92,14 +94,33 @@ function checkout($data){
 function pembelian($data){
 	global $koneksi;
 	
-	$user_id = $data['uid'];
+	$uid = $data['uid'];
 	
-	$ongkir = htmlspecialchars($data['']);
-	$date = htmlspecialchars($data['']);
-	$total = htmlspecialchars($data['']);
+	$ongkir = htmlspecialchars($data['idt']);
+	$date = $data['tgl'];
+	$total = htmlspecialchars($data['sum']);
 	
-	$query = "INSERT INTO pembelian VALUES ('', '$user_id', '$ongkir', '$date', '$total')";
+	$query = "INSERT INTO pembelian VALUES ('', '$uid', '$ongkir', '$date', '$total')";
 	mysqli_query($koneksi, $query);
 	return mysqli_affected_rows($koneksi);
 
+}
+function sold($data)
+{
+	global $koneksi;
+
+	$transaksi = htmlspecialchars($data['transaksi']);
+	$uid = $data['userid'];
+	$produk = $data['produk'];
+	$stokdibeli = $data['stokdibeli'];
+	$status = $data['status'];
+	$jumlah_dipilih = count($produk);
+	
+	
+
+	for($x = 0; $x < $jumlah_dipilih; $x++){
+		$query = "INSERT INTO sold VALUES ('', '$transaksi', '$uid', '$produk[$x]', '$stokdibeli[$x]', '$status')";
+		mysqli_query($koneksi, $query);
+	}
+	return mysqli_affected_rows($koneksi);
 }
