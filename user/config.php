@@ -75,21 +75,21 @@ function regs($data){
 function checkout($data){
 	global $koneksi;
 	
-	$user_id = $data['uit'];
+	$user_id = $data['uid'];
 	$username = htmlspecialchars($data['username']);
 	$alamat = htmlspecialchars($data['alamat']);
 	$telp = htmlspecialchars($data['telp']);
 	$prov = htmlspecialchars($data['provinsi']);
 	$kota = htmlspecialchars($data['distrik']);
-	$ekspedisi = htmlspecialchars($data['ekspedisi']);
 	$ongkir = htmlspecialchars($data['ongkir']);
 	$etd = htmlspecialchars($data['estimasi']);
 	$date = htmlspecialchars($data['tgl']);
-	$query = "INSERT INTO ongkir VALUES ('', '$user_id', '$username', '$alamat', '$telp','$prov', '$kota', '$ekspedisi', '$ongkir', '$etd', '$date')";
+	$query = "INSERT INTO ongkir VALUES ('', '$user_id', '$username', '$alamat', '$telp', '$prov', '$kota', '$ongkir', '$etd', '$date')";
 	mysqli_query($koneksi, $query);
 	return mysqli_affected_rows($koneksi);
 
 }
+// '$ekspedisi'
 //pembelian
 function pembelian($data){
 	global $koneksi;
@@ -100,7 +100,7 @@ function pembelian($data){
 	$date = $data['tgl'];
 	$total = htmlspecialchars($data['sum']);
 	
-	$query = "INSERT INTO pembelian VALUES ('', '$uid', '$ongkir', '$date', '$total')";
+	$query = "INSERT INTO pembelian VALUES ('', '$uid', '$ongkir', '$total', '$date')";
 	mysqli_query($koneksi, $query);
 	return mysqli_affected_rows($koneksi);
 
@@ -123,4 +123,62 @@ function sold($data)
 		mysqli_query($koneksi, $query);
 	}
 	return mysqli_affected_rows($koneksi);
+}
+//pembayaran
+function buktibayar($data)
+{
+    global $koneksi;
+    $userid = htmlspecialchars($data["userid"]);
+    $gambar = upload();
+    $alamat = htmlspecialchars($data["alamat"]);
+    $produk = $data["produk"];
+    $stokdibeli = $data["stokdibeli"];
+    $status = htmlspecialchars($data["status"]);
+    $jumlah_dipilih = count($produk);
+    for ($x = 0; $x < $jumlah_dipilih; $x++) {
+        $query = "INSERT INTO pembayaran VALUES ('','$userid','$gambar','$status','$produk[$x]','$stokdibeli[$x]')";
+        mysqli_query($koneksi, $query);
+    }
+    return mysqli_affected_rows($koneksi);
+}
+//upload gambar
+function upload(){
+	$nfile = $_FILES['image']['name'];
+	$ufile = $_FILES['image']['size'];
+	$tfile = $_FILES['image']['tmp_name'];
+	$gambarvalid = ['jpg','jpeg','png'];
+	$valid = explode('.','$nfile');
+	$valid = strtolower(end($gambarvalid));
+	if (!in_array($valid, $gambarvalid)) {
+		echo "<script>alert('File yang anda pilih bukan gambar')</script>";
+		return false;
+	}
+	if ($ufile > 30000000) {
+		echo "<script>alert('Ukuran file terlalu besar')</script>";
+		return false;
+	}
+	$namabaru = uniqid();
+	$namabaru .= '.';
+	$namabaru .= $valid;
+	move_uploaded_file($tfile, 'bayar/'. $namabaru);
+	return $namabaru;
+}
+function tambah($data)
+{
+    global $koneksi;
+    $userid = htmlspecialchars($data["userid"]);
+    $id = $data["produk_id"];
+    $ssudah = $data["stokbaru"];
+    $jumlah_dipilih = count($id);
+    for ($x = 0; $x < $jumlah_dipilih; $x++) {
+        $query1 = "UPDATE barang SET stok = '$ssudah[$x]' WHERE id = $id[$x]";
+        mysqli_query($koneksi, $query1);
+    }
+    $query2 = "DELETE FROM cart WHERE user_id = $userid";
+    mysqli_query($koneksi, $query2);
+    $query3 = "DELETE FROM sold WHERE id_user = $userid";
+    mysqli_query($koneksi, $query3);
+    $query4 = "DELETE FROM ongkir WHERE id_user = $userid";
+    mysqli_query($koneksi, $query4);
+    return mysqli_affected_rows($koneksi);
 }

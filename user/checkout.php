@@ -24,7 +24,7 @@ if (isset($_POST['submit'])) {
         echo "<script>
         alert('data baru berhasil ditambahkan');
         </script>";
-        header("Location: nota.php");
+        header("Location: pembelian.php");
     }else{
         echo "<script>alert('data gagal ditambahkan');
         </script>";
@@ -117,8 +117,9 @@ if (isset($_POST['submit'])) {
                                         <input type="text" class="form-control" name="alamat" id="alamat" placeholder="Alamat" value="">
                                     </div>
                                     <div class="col-12 mb-3">
-                                        <input type="text" class="form-control" name="telp" id="telp" placeholder="Nomor Telephone" value="">
+                                        <input type="text" class="form-control" name="telp" id="telp" placeholder="Telephone" value="">
                                     </div>
+                                    
                                     <style>
                                         .saya .w-100 {
                                             background-color: #F5F7FA;
@@ -169,7 +170,7 @@ if (isset($_POST['submit'])) {
                                         <input type="hidden" name="ongkir">
                                         <input type="hidden" name="uid" value="<?= $uid;?>">
                                         <input type="hidden" name="idt" value="<?= $var;?>">
-                                        <input type="hidden" name="sum" value="<?= $sum;?>">
+                                        <input type="text" name="sum" value="<?= $sum;?>">
                                         <input type="hidden" name="estimasi">
                                     </div>
 
