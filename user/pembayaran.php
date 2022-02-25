@@ -5,8 +5,8 @@ session_start();
 
 
 $uid = $_SESSION["uid"];
-$query = mysqli_query($koneksi, "SELECT o.id_user, p.id_pembelian, p.total_pembelian, p.tanggal, o.kota, o.ongkir, o.estimasi, o.nama_user, o.alamat, o.no_telephone
-FROM pembelian AS p INNER JOIN ongkir AS o ON o.id_user = p.id_ongkir WHERE p.id_user = $uid");
+$query = mysqli_query($koneksi, "SELECT o.id_user, p.id, o.id_transaksi, p.total_pembelian, p.tanggal, o.kota, o.ongkir, o.estimasi, o.nama_user, o.alamat, o.no_hp
+FROM pembelian AS p INNER JOIN ongkir AS o ON o.id_transaksi = p.id_transaksi WHERE p.id_user = $uid");
 $nota = mysqli_fetch_assoc($query);
 
 $alamat = $nota["alamat"] . " " . $nota["kota"];
@@ -17,8 +17,9 @@ $stok = query("SELECT * FROM barang AS b INNER JOIN cart AS c ON b.id = c.id_pro
 $tt = date("dmys");
 $id_transaksi = $tt . $uid;
 if (isset($_POST["submit"])) {
-    if (buktibayar($_POST) > 0) {
-        echo "<script>alert('data berhasil ditambahkan');</script> ";
+    if (buktibayar($_POST) > 0 & tambah($_POST) > 0) {
+        echo "<script>alert('Barang segera diantar');
+        document.location.href = 'cart.php';</script> ";
     } else {
         echo "<script>alert('data gagal ditambahkan');</script> ";
     }
@@ -102,8 +103,8 @@ if (isset($_POST["submit"])) {
                             <form method="POST" enctype="multipart/form-data">
                                 <div class="row">
                                     <div class="col-md-12 mb-3">
-                                        <input type="text" class="form-control" id="userid" value="<?= $uid ?>" placeholder="id" name="userid">
-                                        <input type="hidden" name="status" value="sudah dibayar">
+                                        <input type="hidden" class="form-control" id="userid" value="<?= $uid ?>" placeholder="id" name="userid">
+                                        <input type="hidden" name="status" value="pengemasan">
                                         <input type="hidden" value="<?= $alamat ?>" name="alamat">
                                         <?php
                                         foreach ($stok as $qty) :
@@ -125,6 +126,7 @@ if (isset($_POST["submit"])) {
                                         <?php
                                         endforeach;
                                         ?>
+                                        <input type="hidden" value="<?= $nota["id_transaksi"] ?>" name="id_transaksi">
                                     </div>
                                     <style>
                                         .halo .w-100 {

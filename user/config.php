@@ -78,13 +78,14 @@ function checkout($data){
 	$user_id = $data['uid'];
 	$username = htmlspecialchars($data['username']);
 	$alamat = htmlspecialchars($data['alamat']);
-	$telp = htmlspecialchars($data['telp']);
+	$telp = htmlspecialchars($data['no_hp']);
 	$prov = htmlspecialchars($data['provinsi']);
+	$id_transaksi = $data["id_transaksi"];
 	$kota = htmlspecialchars($data['distrik']);
 	$ongkir = htmlspecialchars($data['ongkir']);
 	$etd = htmlspecialchars($data['estimasi']);
 	$date = htmlspecialchars($data['tgl']);
-	$query = "INSERT INTO ongkir VALUES ('', '$user_id', '$username', '$alamat', '$telp', '$prov', '$kota', '$ongkir', '$etd', '$date')";
+	$query = "INSERT INTO ongkir VALUES ('', '$user_id', '$id_transaksi', '$username', '$alamat', '$telp', '$prov', '$kota', '$ongkir', '$etd', '$date')";
 	mysqli_query($koneksi, $query);
 	return mysqli_affected_rows($koneksi);
 
@@ -95,50 +96,61 @@ function pembelian($data){
 	global $koneksi;
 	
 	$uid = $data['uid'];
-	
-	$ongkir = htmlspecialchars($data['idt']);
+	$id_barang = $data['produk_id'];
+	$qty = ($data['qty']);
+	$tarif = $data['ongkir'];
+	$alamat = ($data['alamat']);
+	$status = "Proses pengisian data";
+	$id_transaksi = $data["id_transaksi"];
 	$date = $data['tgl'];
-	$total = htmlspecialchars($data['sum']);
-	
-	$query = "INSERT INTO pembelian VALUES ('', '$uid', '$ongkir', '$total', '$date')";
-	mysqli_query($koneksi, $query);
-	return mysqli_affected_rows($koneksi);
-
-}
-function sold($data)
-{
-	global $koneksi;
-
-	$transaksi = htmlspecialchars($data['transaksi']);
-	$uid = $data['userid'];
-	$produk = $data['produk'];
-	$stokdibeli = $data['stokdibeli'];
-	$status = $data['status'];
-	$jumlah_dipilih = count($produk);
-	
-	
-
-	for($x = 0; $x < $jumlah_dipilih; $x++){
-		$query = "INSERT INTO sold VALUES ('', '$transaksi', '$uid', '$produk[$x]', '$stokdibeli[$x]', '$status')";
-		mysqli_query($koneksi, $query);
+	$sum = $data['sum'];
+	$total = $sum + $tarif;
+	$jumlah_dipilih = count($id_barang);
+	for($x = 0 ; $x < $jumlah_dipilih; $x++){
+		$query = "INSERT INTO pembelian VALUES ('','$uid','$id_transaksi','$id_barang[$x]','$qty[$x]','$total','$tarif','$date','$alamat', '$status')";
+        mysqli_query($koneksi, $query);
 	}
+	
+    $query2 = "INSERT INTO pembayaran VALUES ('','','$uid','$id_transaksi','$date','$status')";
+	
+	mysqli_query($koneksi, $query2);
 	return mysqli_affected_rows($koneksi);
+
 }
+// function sold($data)
+// {
+// 	global $koneksi;
+
+// 	$transaksi = htmlspecialchars($data['transaksi']);
+// 	$uid = $data['userid'];
+// 	$produk = $data['produk'];
+// 	$stokdibeli = $data['stokdibeli'];
+// 	$status = $data['status'];
+// 	$jumlah_dipilih = count($produk);
+	
+	
+
+// 	for($x = 0; $x < $jumlah_dipilih; $x++){
+// 		$query = "INSERT INTO sold VALUES ('', '$transaksi', '$uid', '$produk[$x]', '$stokdibeli[$x]', '$status')";
+// 		mysqli_query($koneksi, $query);
+// 	}
+// 	return mysqli_affected_rows($koneksi);
+// }
 //pembayaran
 function buktibayar($data)
 {
     global $koneksi;
     $userid = htmlspecialchars($data["userid"]);
     $gambar = upload();
-    $alamat = htmlspecialchars($data["alamat"]);
+
     $produk = $data["produk"];
     $stokdibeli = $data["stokdibeli"];
     $status = htmlspecialchars($data["status"]);
-    $jumlah_dipilih = count($produk);
-    for ($x = 0; $x < $jumlah_dipilih; $x++) {
-        $query = "INSERT INTO pembayaran VALUES ('','$userid','$gambar','$status','$produk[$x]','$stokdibeli[$x]')";
-        mysqli_query($koneksi, $query);
-    }
+    $id_transaksi = $data["id_transaksi"];
+    $query2 = "UPDATE pembayaran SET image = '$gambar' WHERE id_transaksi = $id_transaksi ";
+    $query3 = "UPDATE pembayaran SET status = '$status' WHERE id_transaksi = $id_transaksi ";
+	mysqli_query($koneksi, $query2);
+    mysqli_query($koneksi, $query3);
     return mysqli_affected_rows($koneksi);
 }
 //upload gambar

@@ -12,11 +12,9 @@ INNER JOIN cart AS c ON c.user_id=u.id
 INNER JOIN barang AS b ON b.id=c.id_produk WHERE u.id='$uid'");
 $row = mysqli_fetch_row($res);
 $sum = $row[0];
-// $resb = mysqli_query($connect, "SELECT SUM(berat * qty) FROM user AS u 
-// INNER JOIN cart AS c ON c.user_id=u.id 
-// INNER JOIN barang AS b ON b.id=c.id_produk WHERE u.id='$uid'");
-// $rowb = mysqli_fetch_row($resb);
-// $sumb = $rowb[0];
+$cart = query("SELECT b.nama, c.kuantitas, b.image, b.harga, b.id, b.stok FROM user AS u 
+INNER JOIN cart AS c ON c.user_id = u.id INNER JOIN barang AS b ON b.id = c.id_produk WHERE u.id = '$uid'");
+
 
 
 if (isset($_POST['submit'])) {
@@ -28,6 +26,7 @@ if (isset($_POST['submit'])) {
     }else{
         echo "<script>alert('data gagal ditambahkan');
         </script>";
+        
     }
   }
 ?>
@@ -117,7 +116,7 @@ if (isset($_POST['submit'])) {
                                         <input type="text" class="form-control" name="alamat" id="alamat" placeholder="Alamat" value="">
                                     </div>
                                     <div class="col-12 mb-3">
-                                        <input type="text" class="form-control" name="telp" id="telp" placeholder="Telephone" value="">
+                                        <input type="text" class="form-control" name="no_hp" id="telp" placeholder="Telephone" >
                                     </div>
                                     
                                     <style>
@@ -159,6 +158,19 @@ if (isset($_POST['submit'])) {
 
                                         </select>
                                     </div>
+                                    <?php
+                                    foreach ($cart as $data) :
+                                    ?>
+                                        <input type="text" value="<?= $data["id"] ?>" name="produk_id[]">
+                                        <input type="text" value="<?= $data["kuantitas"] ?>" name="qty[]">
+                                    <?php
+                                    endforeach;
+                                    ?>
+                                    <?php
+                                    date_default_timezone_set('Asia/Jakarta');
+                                    $id_transaksi = date("dmyHis") . $uid;
+
+                                    ?>
                                     <div class="col-12 mb-3 saya">
                                         <input type="hidden" name="berat" value="1200">
                                         <input type="hidden" name="provinsi">
@@ -168,10 +180,12 @@ if (isset($_POST['submit'])) {
                                         <input type="hidden" name="nama_ekspedisi">
                                         <input type="hidden" name="nama_paket">
                                         <input type="hidden" name="ongkir">
+                                        <input type="hidden" name="id_transaksi" value="<?= $id_transaksi;?>">
                                         <input type="hidden" name="uid" value="<?= $uid;?>">
-                                        <input type="hidden" name="idt" value="<?= $var;?>">
-                                        <input type="text" name="sum" value="<?= $sum;?>">
+                                        <input type="hidden" name="uit" value="<?= $var;?>">
+                                        <input type="hidden" name="sum" value="<?= $sum;?>">
                                         <input type="hidden" name="estimasi">
+                                        
                                     </div>
 
                                     <!-- <div class="col-12 mb-3">
