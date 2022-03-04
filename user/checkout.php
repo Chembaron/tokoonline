@@ -5,7 +5,7 @@ $uid = $_SESSION['uid'];
 if (!isset($_SESSION["login"])) {
     header("Location: login.php");
 }
-$date = date("dmY");
+$date = date("d-m-Y");
 $var = $date.$uid;
 $res = mysqli_query($koneksi, "SELECT SUM(harga * kuantitas) FROM user AS u 
 INNER JOIN cart AS c ON c.user_id=u.id 
@@ -161,8 +161,8 @@ if (isset($_POST['submit'])) {
                                     <?php
                                     foreach ($cart as $data) :
                                     ?>
-                                        <input type="text" value="<?= $data["id"] ?>" name="produk_id[]">
-                                        <input type="text" value="<?= $data["kuantitas"] ?>" name="qty[]">
+                                        <input type="hidden" value="<?= $data["id"] ?>" name="produk_id[]">
+                                        <input type="hidden" value="<?= $data["kuantitas"] ?>" name="qty[]">
                                     <?php
                                     endforeach;
                                     ?>
@@ -184,6 +184,7 @@ if (isset($_POST['submit'])) {
                                         <input type="hidden" name="uid" value="<?= $uid;?>">
                                         <input type="hidden" name="uit" value="<?= $var;?>">
                                         <input type="hidden" name="sum" value="<?= $sum;?>">
+                                        <input type="hidden" name="tgl" value="<?= $date;?>">
                                         <input type="hidden" name="estimasi">
                                         
                                     </div>
@@ -191,9 +192,7 @@ if (isset($_POST['submit'])) {
                                     <!-- <div class="col-12 mb-3">
                                         <textarea name="comment" class="form-control w-100" id="comment" cols="30" rows="10" placeholder="Tinggalkan komentar tentang produk anda"></textarea>
                                     </div> -->
-                                    <div class="col-12 mb-3">
-                                        <input type="date" class="form-control" name="tgl" id="tgl" placeholder="Tanggal Pembelian" value="">
-                                    </div>
+                                    
                                     
                                 </div>
                                 <div class="cart-btn mt-100">

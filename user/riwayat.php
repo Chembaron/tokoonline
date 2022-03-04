@@ -1,64 +1,15 @@
 <?php
 session_start();
-include 'config.php';
-//cek cookie
-if(isset($_COOKIE['id']) && isset($_COOKIE['key'])){
-    $id = $_COOKIE['id'];
-    $key = $_COOKIE['key'];
+include_once "config.php";
 
-    $result = mysqli_query($koneksi, "SELECT username FROM user WHERE id = $id");
-    $row = mysqli_fetch_assoc($result);
-
-    if( $key === hash('sha256', $row['username'])){
-        $_SESSION['login'] = true;
-    }
-}
-//cek session
-if(isset($_SESSION['login'])){
-    header("Location: index.php");
-    exit;
-}
-
-
-if (isset($_POST['login'])) {
-    $username = $_POST['username'];
-    $password = $_POST['password'];
-    $result = mysqli_query($koneksi, "SELECT * FROM user WHERE username ='$username'");
-    $cek = mysqli_num_rows($result);
-    if (mysqli_num_rows($result) === 1) {
-        //cek password
-        $row = mysqli_fetch_assoc($result);
-        if (password_verify($password, $row['password'])) {
-            //set session
-            $_SESSION["login"] = true;
-
-            //cek remember me
-            if(isset($_POST['remember'])){
-                //cookie
-                setcookie('id', $row['id'], time() + 60);
-                setcookie('key', hash('sha256', $row['username']), time() + 60);
-                // setcookie('login', 'true', time() + 60);
-            }
-                if($row['level'] == "admin"){
-                    $_SESSION['username'] = $username;
-                    $_SESSION['level'] = "admin";
-                    header("Location: ../admin/index.php");
-                    exit;
-
-                }else if($row['level'] == "user"){
-                    $_SESSION['uid'] = $row['id'];
-                    $_SESSION['level'] = "user";
-                    header("Location: index.php");
-                    exit;
-                }else{
-                    header('Location: login.php');
-                }
-        }
-    }
-    $error = true;
-}
+$uid = $_SESSION["uid"];
+$cart = query("SELECT p.id_transaksi, b.date, b.id_user, p.total_pembelian, b.status, p.id_barang, g.nama,b.id FROM pembelian AS p 
+INNER JOIN pembayaran AS b ON b.id_transaksi = p.id_transaksi 
+INNER JOIN barang as g ON g.id = p.id_barang WHERE b.id_user = $uid GROUP BY b.id_transaksi");
+$history = query("SELECT * FROM pembayaran WHERE id_user = $uid");
+$dsn = '';
+$harga = '';
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -70,7 +21,7 @@ if (isset($_POST['login'])) {
     <!-- The above 4 meta tags *must* come first in the head; any other head content must come *after* these tags -->
 
     <!-- Title  -->
-    <title>Amado - Furniture Ecommerce Template | Product Details</title>
+    <title>TOKO MAJU GERAK | Cart</title>
 
     <!-- Favicon  -->
     <link rel="icon" href="img/core-img/favicon.ico">
@@ -78,7 +29,6 @@ if (isset($_POST['login'])) {
     <!-- Core Style CSS -->
     <link rel="stylesheet" href="css/core-style.css">
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="fontawesome/css/all.min.css">
 
 </head>
 
@@ -104,7 +54,7 @@ if (isset($_POST['login'])) {
     <!-- Search Wrapper Area End -->
 
     <!-- ##### Main Content Wrapper Start ##### -->
-    <div class="main-content-wrapper d-flex clearfix">
+    <div class="main-content-wrapper d-flex clearfix" id="cartList">
 
         <!-- Mobile Nav (max width 767px)-->
         <div class="mobile-nav">
@@ -119,48 +69,72 @@ if (isset($_POST['login'])) {
         </div>
 
         <!-- Header Area Start -->
-        
+        <?php
+        include_once 'header.php';
+        ?>
         <!-- Header Area End -->
-
-        <!-- Register page Start -->
         <div class="amado_product_area section-padding-100 mx-auto">
             <div class="container-fluid">
 
                 <div class="row">
                     <div class="col-12">
                         <div class="container card shadow overflow-hidden p-5 m-auto" style="width: 100%;">
-                            <h3 class="text-center">Menu Login</h3>
-                            <hr />
-                            <?php
-                            if (isset($error)) :
-                            ?>
-                                <p style="color: red;">Data yang anda masukkan salah!</p>
-                            <?php endif; ?>
-                            <form action="" method="POST">
-                                <div class="form-group">
-                                    <label for="username">Username:</label>
-                                    <input type="text" class="form-control" id="username" name="username">
-                                </div>
-                                <div class="form-group">
-                                    <label for="password">Password:</label>
-                                    <input type="password" class="form-control" id="password" name="password"/>
-                                    <span><i class=""></i></span>
-                                </div>
-                                <div class="form-check form-check-inline">
-                                    <label class="form-check-label" for="remember">Remember me:</label>
-                                    <input class="form-check-input" type="checkbox" id="remember" name="remember">
-                                </div>
-                                <div class="form-group">
-                                    <button type="submit" name="login" class="amado-btn">Login</button>
-                                </div>
-                                <a href="register.php">Belum punya akun? daftar sekarang</a>
-                            </form>
+                            <table class="table">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th scope="col">No</th>
+                                        <th scope="col">ID Transaksi</th>
+                                        <th scope="col">Status</th>
+                                        <th scope="col">Action</th>
+                                        <th scope="col">Barang</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php
+                                    $a = 1;
+                                    ?>
+                                    <?php
+                                    foreach ($cart as $data) :    
+                                    ?>
+                                    <?php
+                                        $transaksi = $data["id_transaksi"];
+                                        $datariwayat = query("SELECT b.nama, b.id FROM barang AS b INNER JOIN pembelian AS p ON b.id = p.id_barang WHERE p.id_transaksi = $transaksi");
+                                    ?>
+                                        <tr>
+                                            <input type="hidden" value="<?= $data["id_transaksi"] ?>">                                          
+                                                <th scope="row"><?= $a ?></th>
+                                                <td><?= $data["id_transaksi"] ?></td>
+                                                <td><?= $data["status"] ?></td>
+                                                <td>
+                                                    <a class="amado-btn-group mr-1" href="ubahdatabeli.php?id=<?= $data["id"]; ?>" role="button" onclick="return confirm('Yakin barang sudah diterima?')"><i class="fa fa-edit">Edit</i></a>
+                                                    <a class="amado-btn-group mr-1" href="hapusdatabeli.php?id=<?= $data["id"]; ?>" role="button" onclick="return confirm('Yakin ingin menghapus history?')"><i class="fa fa-trash"></i>Hapus</a>
+                                                </td>
+                                            <td>
+                                                <ul>
+                                                    <?php foreach($datariwayat as $riw): 
+                                                    ?>
+                                                    <li><a href="productdetails.php?id=<?= $riw['id']?>" style="font-size : medium"><?= $riw['nama'];?></a><li>
+                                                    <?php endforeach;
+                                                    ?>
+                                                </ul>
+                                            </td>
+                                        </tr>
+                                        <?php
+                                        $a++;
+                                        ?>
+                                    <?php
+                                    endforeach;
+                                    ?>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <!--Register page End-->
+
+    </div>
+
     </div>
     <!-- ##### Main Content Wrapper End ##### -->
 
@@ -191,11 +165,12 @@ if (isset($_POST['login'])) {
 
     <!-- ##### Footer Area Start ##### -->
     <?php
-    include 'footer.php';
+    include_once 'footer.php';
     ?>
     <!-- ##### Footer Area End ##### -->
 
     <!-- ##### jQuery (Necessary for All JavaScript Plugins) ##### -->
+    <script src="qty.js"></script>
     <script src="js/jquery/jquery-2.2.4.min.js"></script>
     <!-- Popper js -->
     <script src="js/popper.min.js"></script>
@@ -205,7 +180,7 @@ if (isset($_POST['login'])) {
     <script src="js/plugins.js"></script>
     <!-- Active js -->
     <script src="js/active.js"></script>
-    <script src="pass.js"></script>
+
 </body>
 
 </html>

@@ -102,7 +102,7 @@ function pembelian($data){
 	$alamat = ($data['alamat']);
 	$status = "Proses pengisian data";
 	$id_transaksi = $data["id_transaksi"];
-	$date = $data['tgl'];
+	$date = htmlspecialchars($data['tgl']);
 	$sum = $data['sum'];
 	$total = $sum + $tarif;
 	$jumlah_dipilih = count($id_barang);
@@ -191,6 +191,13 @@ function tambah($data)
     $query3 = "DELETE FROM sold WHERE id_user = $userid";
     mysqli_query($koneksi, $query3);
     $query4 = "DELETE FROM ongkir WHERE id_user = $userid";
+    mysqli_query($koneksi, $query4);
+    return mysqli_affected_rows($koneksi);
+}
+function hapus($data){
+	global $koneksi;
+	$userid = htmlspecialchars($data["userid"]);
+	$query4 = "DELETE FROM ongkir WHERE id_user = $userid";
     mysqli_query($koneksi, $query4);
     return mysqli_affected_rows($koneksi);
 }

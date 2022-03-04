@@ -4,9 +4,11 @@
 
     $uid = $_SESSION["uid"];
     $query = mysqli_query($koneksi, "SELECT o.id_user, p.total_pembelian, p.tanggal, o.kota, o.ongkir, o.estimasi, o.nama_user, o.alamat, o.no_hp FROM
-    pembelian AS p INNER JOIN ongkir AS o ON o.id_user = p.id_user WHERE p.id_user=$uid");
+    pembelian AS p INNER JOIN ongkir AS o ON o.id_transaksi = p.id_transaksi WHERE p.id_user = $uid");
     $nota = mysqli_fetch_assoc($query);
-    $cart = query("SELECT b.nama, c.kuantitas, b.image, b.harga, c.id, b.stok FROM user AS u INNER JOIN cart AS c ON c.user_id=u.id INNER JOIN barang AS b ON b.id=c.id_produk WHERE u.id='$uid'");
+    $cart = query("SELECT b.nama, c.kuantitas, b.image, b.harga, c.id, b.stok FROM user AS u 
+    INNER JOIN cart AS c ON c.user_id=u.id 
+    INNER JOIN barang AS b ON b.id=c.id_produk WHERE u.id='$uid'");
     $tt = date("dmys");
     $id_transaksi = $tt . $uid;
     if (isset($_POST["submit"])) {
@@ -18,6 +20,15 @@
             echo "<script>alert('data gagal ditambahkan');</script> ";
         }
     }
+    if(isset($_POST['kembali'])){
+        if(hapus($_POST) > 0){
+            echo "<script>alert('data dihapus');
+            document.location.href = 'scheckout.php'";
+        }else {
+            echo "<script>alert('data gagal ditambahkan');</script> ";
+        }
+    }
+    
     ?>
    <!DOCTYPE html>
    <html lang="en">
@@ -92,13 +103,12 @@
                                        <td>:<?= $nota['kota']?></td>
                                    </tr>
                                </table>
-                               <form action="" method="post">
                                    <table class="table">
                                        <thead class="thead-light">
                                            <tr>
                                                <th scope="col">No.</th>
                                                <th scope="col">Nama</th>
-                                               <th scope="col">Jumlah</th>
+                                               <th scope="col">Kuantitas</th>
                                                <th scope="col">Sub Harga</th>
                                            </tr>
                                        </thead>
@@ -133,13 +143,17 @@
                                             ?>
                                            <tr class="">
                                                <th colspan="3">Ongkir</th>
-                                               <th>Rp <?= $nota['ongkir'];?> </th>
+                                               <th>Rp <?= number_format($nota['ongkir']);?> </th>
                                            </tr>
                                            <tr class="">
                                                <th colspan="3">Total</th>
-                                               <th>Rp <?= $nota['total_pembelian']?> </th>
+                                               <th>Rp <?= number_format($nota['total_pembelian']);?> </th>
                                            </tr>
+                                           
                                            <tr>
+                                               <td colspan="4">
+                                                   <a name="kembali" class="amado-btn">Kembali</a>
+                                               </td>
                                                <td colspan="4">
                                                    <a href="pembayaran.php" class="amado-btn">Bayar</a>
                                                </td>
@@ -147,7 +161,7 @@
                                            </tr>
                                        </tbody>
                                    </table>
-                               </form>
+                               
                            </div>
                        </div>
                    </div>

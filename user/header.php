@@ -15,6 +15,7 @@
                     <!-- <li><a href="shop.php">Shop</a></li> -->
                     <li><a href="cart.php">Cart</a></li>
                     <li><a href="checkout.php">Checkout</a></li>
+                    <li><a href="riwayat.php">Riwayat</a></li>
                     <li><a href="logout.php">Logout</a></li>
                 </ul>
             </nav>
